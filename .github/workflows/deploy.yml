@@ -23,7 +23,7 @@ jobs:
       - name: Set up pnpm
         uses: pnpm/action-setup@v2
         with:
-          version: '7.0.0'  # Specifica la versione di pnpm che vuoi utilizzare (sostituisci con la tua versione desiderata)
+          version: '7.1.0'  # Specifica la versione di pnpm compatibile con Astro
 
       - name: Install dependencies and build the site
         run: |
