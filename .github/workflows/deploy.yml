@@ -1,13 +1,13 @@
 name: Deploy to GitHub Pages
 
 on:
-  # Trigger the workflow every time you push to the `main` branch
+  # Trigger il workflow ogni volta che fai un push sul branch `main`
   push:
-    branches: [ main ]
-  # Allows you to run this workflow manually from the Actions tab on GitHub.
+    branches: [main]
+  # Permette di avviare il workflow manualmente dalla tab "Actions" su GitHub.
   workflow_dispatch:
 
-# Allow this job to clone the repo and create a page deployment
+# Permette al job di clonare il repository e creare una pagina per il deploy
 permissions:
   contents: read
   pages: write
@@ -16,9 +16,10 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout your repository using git
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4  # Checkout del repository
 
       - name: Set up pnpm
         uses: pnpm/action-setup@v2
@@ -27,16 +28,34 @@ jobs:
 
       - name: Install dependencies and build the site
         run: |
-          pnpm install
-          pnpm build
+          pnpm install  # Installa le dipendenze del progetto
+          pnpm build    # Esegue la build del sito (generando la cartella `dist/`)
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: github-pages  # Nome dell'artifact da usare per il deploy
+          path: dist          # Percorso alla cartella che contiene i file costruiti (il sito)
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+
     steps:
+      - name: Checkout your repository using git
+        uses: actions/checkout@v4  # Aggiungi questa step per il checkout
+
+      - name: Download the artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: github-pages  # Nome dell'artifact che hai caricato nel job di build
+
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v4  # Azione per il deploy su GitHub Pages
+        with:
+          branch: gh-pages  # La branch che contiene il sito pubblico (puoi cambiarla se necessario)
+          folder: dist      # La cartella generata dalla build di Astro che contiene i file statici
+
+      - name: Output URL
+        run: echo "Site deployed to ${{ steps.deployment.outputs.page_url }}"
