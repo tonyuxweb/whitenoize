@@ -1,38 +1,42 @@
 name: Deploy to GitHub Pages
 
 on:
+  # Trigger the workflow every time you push to the `main` branch
   push:
-    branches: [main]  # Trigger sulla branch principale, puoi cambiare se necessario
-  workflow_dispatch:  # Permette di avviare manualmente il workflow
+    branches: [ main ]
+  # Allows you to run this workflow manually from the Actions tab on GitHub.
+  workflow_dispatch:
+
+# Allow this job to clone the repo and create a page deployment
+permissions:
+  contents: read
+  pages: write
+  id-token: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-      # Checkout del codice dal repository
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Checkout your repository using git
+        uses: actions/checkout@v4
 
-      # Set up Node.js (Astro richiede Node.js)
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v2
         with:
-          node-version: '20'  # Usa la versione di Node che desideri (consigliata >= 16)
+          version: '7.1.0'  # Specifica la versione di pnpm compatibile con Astro
 
-      # Installa le dipendenze con pnpm
-      - name: Install dependencies
+      - name: Install dependencies and build the site
         run: |
-          npm install -g pnpm  # Installa pnpm globalmente
-          pnpm install          # Installa le dipendenze del progetto
+          pnpm install
+          pnpm build
 
-      # Costruisci il sito
-      - name: Build site
-        run: pnpm build
-
-      # Imposta la directory di build per il deploy su GitHub Pages
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
       - name: Deploy to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@v4.1.0
-        with:
-          branch: gh-pages  # La branch dove pubblicare il sito
-          folder: dist      # La cartella che contiene i file costruiti da Astro
+        id: deployment
+        uses: actions/deploy-pages@v4
