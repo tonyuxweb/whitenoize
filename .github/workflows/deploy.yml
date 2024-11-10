@@ -1,13 +1,10 @@
 name: Deploy to GitHub Pages
 
 on:
-  # Trigger il workflow ogni volta che fai un push sul branch `main`
   push:
     branches: [main]
-  # Permette di avviare il workflow manualmente dalla tab "Actions" su GitHub.
   workflow_dispatch:
 
-# Permette al job di clonare il repository e creare una pagina per il deploy
 permissions:
   contents: read
   pages: write
@@ -19,23 +16,23 @@ jobs:
 
     steps:
       - name: Checkout your repository using git
-        uses: actions/checkout@v4  # Checkout del repository
+        uses: actions/checkout@v4
 
       - name: Set up pnpm
         uses: pnpm/action-setup@v2
         with:
-          version: '7.1.0'  # Specifica la versione di pnpm compatibile con Astro
+          version: '7.1.0'
 
       - name: Install dependencies and build the site
         run: |
-          pnpm install  # Installa le dipendenze del progetto
-          pnpm build    # Esegue la build del sito (generando la cartella `dist/`)
+          pnpm install
+          pnpm build
 
-      - name: Upload build artifacts
+      - name: Upload artifact (optional)
         uses: actions/upload-artifact@v3
         with:
-          name: github-pages  # Nome dell'artifact da usare per il deploy
-          path: dist          # Percorso alla cartella che contiene i file costruiti (il sito)
+          name: github-pages
+          path: dist/
 
   deploy:
     needs: build
@@ -43,19 +40,15 @@ jobs:
 
     steps:
       - name: Checkout your repository using git
-        uses: actions/checkout@v4  # Aggiungi questa step per il checkout
-
-      - name: Download the artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: github-pages  # Nome dell'artifact che hai caricato nel job di build
+        uses: actions/checkout@v4
 
       - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4  # Azione per il deploy su GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          branch: gh-pages  # La branch che contiene il sito pubblico (puoi cambiarla se necessario)
-          folder: dist      # La cartella generata dalla build di Astro che contiene i file statici
+          branch: gh-pages
+          folder: dist  # La cartella generata dalla build (dove sono i file statici)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Questo token è usato per autenticarsi su GitHub
 
       - name: Output URL
-        run: echo "Site deployed to ${{ steps.deployment.outputs.page_url }}"
+        run: echo "Site deployed to https://yourusername.github.io/yourrepository"
