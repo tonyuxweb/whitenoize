@@ -1,42 +1,38 @@
 name: Deploy to GitHub Pages
 
 on:
-  # Trigger the workflow every time you push to the `main` branch
   push:
-    branches: [ main ]
-  # Allows you to run this workflow manually from the Actions tab on GitHub.
-  workflow_dispatch:
-
-# Allow this job to clone the repo and create a page deployment
-permissions:
-  contents: read
-  pages: write
-  id-token: write
+    branches: [main]  # Trigger sulla branch principale, puoi cambiare se necessario
+  workflow_dispatch:  # Permette di avviare manualmente il workflow
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout your repository using git
-        uses: actions/checkout@v4
 
-      - name: Set up pnpm
-        uses: pnpm/action-setup@v2
+    steps:
+      # Checkout del codice dal repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Set up Node.js (Astro richiede Node.js)
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
         with:
-          version: '7.1.0'  # Specifica la versione di pnpm compatibile con Astro
+          node-version: '20'  # Usa la versione di Node che desideri (consigliata >= 16)
 
-      - name: Install dependencies and build the site
+      # Installa le dipendenze con pnpm
+      - name: Install dependencies
         run: |
-          pnpm install
-          pnpm build
+          npm install -g pnpm  # Installa pnpm globalmente
+          pnpm install          # Installa le dipendenze del progetto
 
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
+      # Costruisci il sito
+      - name: Build site
+        run: pnpm build
+
+      # Imposta la directory di build per il deploy su GitHub Pages
       - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+        uses: JamesIves/github-pages-deploy-action@v4.1.0
+        with:
+          branch: gh-pages  # La branch dove pubblicare il sito
+          folder: dist      # La cartella che contiene i file costruiti da Astro
