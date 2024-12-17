@@ -18,34 +18,28 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v3
         with:
-          node-version: '20'
+          node-version: '20'  # Impostato su Node.js 20
 
       - name: Install dependencies
         run: npm install
 
       - name: Build the site
-        run: npm run build
+        run: npm run build  # Assumendo che 'npm run build' generi i file nella cartella 'dist'
 
-      - name: Debug build output
-        run: ls -la dist  # Verifica che la cartella dist sia presente
+      - name: Check size of dist folder
+        run: |
+          echo "Size of dist folder:"
+          du -sh dist  # Calcola e stampa la dimensione della cartella 'dist'
+
+      - name: Remove symlinks from build
+        run: find dist -type l -exec rm {} \;  # Rimuove i symlinks dalla cartella 'dist'
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-pages-artifact@v2
         with:
-          name: github-pages  # Nome dell'artifact
-          path: dist          # La cartella di output generata dalla build
-
-      - name: List uploaded artifacts
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const artifacts = await github.rest.actions.listArtifactsForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-            });
-            console.log(artifacts.data);  // Mostra gli artifact caricati
+          path: dist  # La cartella di output generata da Astro
 
   deploy:
     needs: build
