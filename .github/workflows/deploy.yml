@@ -37,8 +37,9 @@ jobs:
         run: find dist -type l -exec rm {} \;  # Rimuove i symlinks dalla cartella 'dist'
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
+          name: github-pages  # Nome dell'artefatto, che deve essere lo stesso che il passaggio di deploy si aspetta
           path: dist  # La cartella di output generata da Astro
 
   deploy:
