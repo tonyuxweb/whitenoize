@@ -26,13 +26,26 @@ jobs:
         run: npm install
 
       - name: Build the site
-        run: npm run build  # Assumendo che 'npm run build' generi i file nella cartella 'dist'
+        run: npm run build
+
+      - name: Debug build output
+        run: ls -la dist  # Verifica che la cartella dist sia presente
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
-          name: github-pages  # Nome esplicito per l'artifact
-          path: dist          # La cartella di output generata da Astro
+          name: github-pages  # Nome dell'artifact
+          path: dist          # La cartella di output generata dalla build
+
+      - name: List uploaded artifacts
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const artifacts = await github.rest.actions.listArtifactsForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+            console.log(artifacts.data);  // Mostra gli artifact caricati
 
   deploy:
     needs: build
