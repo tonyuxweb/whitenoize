@@ -20,7 +20,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20' # Puoi specificare la versione di Node.js che preferisci
+          node-version: '20'
 
       - name: Install dependencies
         run: npm install
@@ -31,7 +31,8 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
         with:
-          path: dist  # La cartella di output generata da Astro
+          name: github-pages  # Nome esplicito per l'artifact
+          path: dist          # La cartella di output generata da Astro
 
   deploy:
     needs: build
