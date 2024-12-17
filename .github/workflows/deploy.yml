@@ -17,16 +17,16 @@ jobs:
       - name: Checkout your repository
         uses: actions/checkout@v4
 
-      - name: Set up pnpm
-        uses: pnpm/action-setup@v2
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          version: '8.15.4'
+          node-version: '20' # Puoi specificare la versione di Node.js che preferisci
 
       - name: Install dependencies
-        run: pnpm install
+        run: npm install
 
       - name: Build the site
-        run: pnpm build  # Assumendo che 'pnpm build' generi i file nella cartella 'dist'
+        run: npm run build  # Assumendo che 'npm run build' generi i file nella cartella 'dist'
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
